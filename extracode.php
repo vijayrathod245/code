@@ -179,6 +179,31 @@ function add_insert_data(){?>
 	</form>
 <?php }
 
+/* Select record wordpress */
+add_shortcode('select', 'select_data');
+
+function select_data(){?>
+	<table border="1">
+<tr>
+ <th>Id</th>
+ <th>FirstName</th>
+ <th>LastName</th>
+ <th>Action</th>
+</tr>
+  <?php
+    global $wpdb;
+    $result = $wpdb->get_results ( "SELECT * FROM std" );
+    foreach ( $result as $print )   {
+    ?>
+    <tr>
+    <td><?php echo $print->id;?></td>
+	<td><?php echo $print->firstname;?></td>
+	<td><?php echo $print->lastname;?></td>
+	<td><a href="#">Delete</a></td>
+    </tr>
+        <?php }
+  ?>          
+<?php }
 
 /* Perant and child category display */
 
