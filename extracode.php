@@ -80,3 +80,67 @@ SELECT countryname FROM `country` GROUP BY countryname DESC LIMIT 1 OFFSET 1
 					}?>
                     </span>
 
+
+
+
+/* Wordpress code */
+
+<?php
+/* Template Name: News Template
+ */
+ 
+//remove genesis default loop and add custom loop
+add_filter( 'genesis_pre_get_option_site_layout', '__genesis_return_content_sidebar' );
+remove_action( 'genesis_before_loop', 'genesis_do_taxonomy_title_description', 15 );
+remove_action('genesis_loop', 'genesis_do_loop');
+
+add_action('genesis_loop', 'category_loop_function');
+function category_loop_function(){
+
+	global $post, $paged;
+	?>
+	<article class="post type-post status-publish format-standard has-post-thumbnail category-pers entry">
+		
+		<?php
+		
+			$argmnt = array(
+				'posts_per_page'   => 20,
+				'orderby'          => 'date',
+				'post_type'        => 'post',
+				'post_status'      => 'publish',
+				'order'			   => 'DESC',
+				'paged'            => $paged,
+				'prev_next'          => True
+			);
+			
+			/* echo '<pre>'; print_r($argmnt);echo '</pre>'; */
+			query_posts( $argmnt ); ?>
+		
+			<div class="all-category">
+				<div class="category-txt">
+				
+					<?php if ( have_posts() ) while ( have_posts() ) : the_post(); ?>
+							
+								<div class="one-first">
+									<?php the_post_thumbnail('category-images'); ?>
+									<p><a href="<?php the_permalink(); ?>"><?php the_title();?></a></p>
+									<p><?php echo get_the_content(); ?></p>
+								</div>
+							
+					<?php endwhile; ?>
+				</div>
+				
+			</div>
+			<div class="cate-pagination"><?php echo paginate_links($argmnt); ?> </div>
+			
+	</article>
+		  
+		<?php wp_reset_postdata();
+	wp_reset_query();
+		?>
+	<?php
+}
+
+genesis();
+
+
