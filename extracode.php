@@ -292,3 +292,82 @@ function hook_bootstrap() {
 
 ?>
 
+		/* worepress api */
+		
+		<?php
+include "../wp-load.php";
+$params = json_decode(file_get_contents('php://input'),TRUE);
+	
+// get the most visited post
+if(isset($params['action']) && $params['action'] == 'get_mostvisit_post'){
+	
+	if(!isset($params['page']) || $params['page'] == ''){
+		$response['status'] = 0;
+		$response['message'] = "Please Enter page number";
+		header('Content-Type: application/json; charset=utf-8');
+		echo json_encode($response);
+		exit(); 
+	}
+	if(!isset($params['limit']) || $params['limit'] == ''){
+		$response['status'] = 0;
+		$response['message'] = "Please enter recode limit";
+		header('Content-Type: application/json; charset=utf-8');
+		echo json_encode($response);
+		exit(); 
+	}else{
+		$pageNum = ! empty($params['page'] ) ? (int) $params['page'] : 1;
+		$perPage = ! empty($params['limit'] ) ? (int) $params['limit'] : 10;
+
+		$args = array(	
+				'post_type' => 'post',
+				'posts_per_page' => $perPage,
+				'offset' => ( $pageNum - 1 ) * $perPage,
+				'paged' => $pageNum,
+				'meta_key' => 'wpb_post_views_count',
+				'orderby' => 'meta_value_num',
+				'order' => 'DESC',
+				'date_query' => array(
+					'after' => '1 week ago',
+					'before' => 'today',
+					'inclusive' => true,
+				),
+			);
+			
+		$wp_query_data = get_posts( $args );
+		
+		if(!empty($wp_query_data)){
+			foreach($wp_query_data as $data){
+
+				$data1['post-id'] = $data->ID;
+				$data1['post-title'] = $data->post_title;
+				$data1['post-content'] = $data->post_content;
+				$data1['post-date'] = $data->post_date;
+				
+				$data1['post-thum'] = wp_get_attachment_image_src( get_post_thumbnail_id( $data->ID ), 'full' );
+
+				$outputs[]  = $data1;
+			}
+			$response['status']  = 1;
+			$response['message'] = "Recodes Successfully found";
+			$response['data'] = $outputs;
+			header('Content-Type: application/json; charset=utf-8');
+			echo json_encode($response);
+			exit();
+		}else{
+			$response['status']  = 1;
+			$response['message'] = "Recode not found";
+			$response['data'] = [];
+			header('Content-Type: application/json; charset=utf-8');
+			echo json_encode($response);
+			exit(); 
+		}
+	}
+	
+}else {
+	$response['status'] = 0;
+	$response['message'] = "Please Enter Action name";
+	header('Content-Type: application/json; charset=utf-8');
+	echo json_encode($response);
+	exit();
+} 
+?>
