@@ -144,3 +144,38 @@ function category_loop_function(){
 genesis();
 
 
+/* Insert data in wordpress */
+
+add_shortcode('insert', 'add_insert_data');
+function add_insert_data(){?>
+
+<?php if($_POST['submit']){
+	global $wpdb;
+	$firstname = $_POST['firstname'];
+	$lastname = $_POST['lastname'];
+	
+	$wpdb->insert('std', array(
+    'firstname' => $firstname,
+    'lastname' => $lastname
+));
+	
+	
+	if($wpdb){
+		echo "Insert success";
+	}
+	else{
+		echo "Insert failed";
+	}
+ }?>
+	<form method="post">
+		<div>
+			<div>FirstName</div>
+			<div><input type="text" name="firstname"/></div>
+			<div>FirstName</div>
+			<div><input type="text" name="lastname"/></div>
+			<div></div>
+			<div><input type="submit" name="submit" value="Submit"/></div>
+		</div>
+	</form>
+<?php }
+
